@@ -1,19 +1,18 @@
-# FlowEmailComposer
+# Salesforce DX Project: Next Steps
 
-Flow Email Composer is a lightning component that provides the ability to select email template and prepare a draft version of the email with merge field values. User can also compose the email on the go without selecting email template.
+Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
 
-### Features
+## How Do You Plan to Deploy Your Changes?
 
-- Pre-populate the email composer with To,CC,Bcc,Subject. The e-mail addresses should be comma separated.
+Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
 
-- Prepares a draft version of the email being sent based on selected e-mail template. The draft version is loaded with evaluated merge fields, adds attachments if any added to template. This feature requires to specify whatId.
+## Configure Your Salesforce DX Project
 
-- Ability to upload attachments. Uploaded attachments will get saved to Files. If you specify whatId, the attachment gets linked to the record.
+The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
 
-### Setup Instructions
+## Read All About It
 
-1. Install the package.
-2. Open the lightning flow you wish to edit or create one.
-3. Drag and drop Screen Element to the canvas.
-4. Select the component, Flow Email Composer in the Screen Component search wizard.
-5. Specify the values for whatId, To, CC, Bcc, Subject. The body of email uses whatId to evaluate the merge fields in selected email template. You can also use flow variables to populate these attributes
+- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
+- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
+- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
+- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
