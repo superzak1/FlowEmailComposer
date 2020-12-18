@@ -1,4 +1,7 @@
 <template>
+  <template if:true={showSpinner}>
+    <lightning-spinner size="large" alternative-text="loading..."></lightning-spinner>
+  </template>
   <div class="slds-box" style="background: white">
     <lightning-layout multiple-rows>
       <lightning-layout-item size="12" class="slds-p-horizontal_small">
@@ -6,25 +9,17 @@
           value={toAddresses}
           required="true"
           label="To:Specify comma separated e-mail addresses"
+          onchange={handleToAddressesChange}
         ></lightning-input>
       </lightning-layout-item>
-
       <template if:true={showCCButton}>
         <lightning-layout-item size="1" class="slds-p-horizontal_small">
-          <lightning-button
-            variant="base"
-            label="CC"
-            onclick={showcc}
-          ></lightning-button>
+          <lightning-button variant="base" label="CC" onclick={showcc}></lightning-button>
         </lightning-layout-item>
       </template>
       <template if:true={showBCCButton}>
         <lightning-layout-item size="1" class="slds-p-horizontal_small">
-          <lightning-button
-            variant="base"
-            label="Bcc"
-            onclick={showbcc}
-          ></lightning-button>
+          <lightning-button variant="base" label="Bcc" onclick={showbcc}></lightning-button>
         </lightning-layout-item>
       </template>
       <template if:true={showCCFieldFinal}>
@@ -33,6 +28,7 @@
             value={ccAddresses}
             required="true"
             label="CC: Specify comma separated e-mail addresses"
+            onchange={handleCCAddressesChange}
           ></lightning-input>
         </lightning-layout-item>
       </template>
@@ -42,6 +38,7 @@
             value={bccAddresses}
             label="Bcc: Specify comma separated e-mail addresses"
             required="true"
+            onchange={handleBCCAddressesChange}
           ></lightning-input>
         </lightning-layout-item>
       </template>
@@ -51,6 +48,7 @@
           label="Subject"
           value={subject}
           required="true"
+          onchange={handleSubjectChange}
         ></lightning-input>
       </lightning-layout-item>
 
@@ -78,19 +76,16 @@
       </template>
 
       <lightning-layout-item size="12" class="slds-p-horizontal_small">
-        <label class="slds-form-element__label"
-          ><abbr class="slds-required" title="required">* </abbr>Body
-        </label>
+        <label class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>Body </label>
         <lightning-input-rich-text
           label="Body"
           value={emailBody}
+          onchange={handleBodyChange}
         ></lightning-input-rich-text>
       </lightning-layout-item>
       <template if:true={hasTemplateAttachments}>
         <lightning-layout-item size="12" class="slds-p-horizontal_small">
-          <label class="slds-form-element__label"
-            >Attached Files from Template:</label
-          >
+          <label class="slds-form-element__label">Attached Files from Template:</label>
           <template for:each={attachmentsFromTemplate} for:item="att">
             <lightning-pill
               key={att.attachId}
@@ -123,14 +118,11 @@
           ></lightning-pill>
         </template>
         <template if:true={showSpinner}>
-          <lightning-spinner
-            alternative-text="Loading"
-            size="medium"
-          ></lightning-spinner>
+          <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
         </template>
       </lightning-layout-item>
-      <template if:true={showSendButton}>
-        <lightning-layout-item size="12" class="slds-p-around_small">
+      <lightning-layout-item size="12" class="slds-p-around_small">
+        <template if:true={showSendButton}>
           <lightning-button
             disabled={sendButtonDisabled}
             class="slds-align_absolute-center"
@@ -138,8 +130,14 @@
             label="Send"
             onclick={sendEmail}
           ></lightning-button>
-        </lightning-layout-item>
-      </template>
+        </template>
+        <lightning-button
+          class="slds-float_right"
+          variant="brand"
+          label="Next"
+          onclick={handleGoNext}
+        ></lightning-button>
+      </lightning-layout-item>
     </lightning-layout>
   </div>
 
