@@ -1,10 +1,7 @@
 global with sharing class FlowEmailComposerCtrl {
   @AuraEnabled(cacheable=true)
   public static List<EmailTemplate> getEmailTemplates() {
-    if (
-      Schema.sObjectType.EmailTemplate.isAccessible() &&
-      Schema.sObjectType.Attachment.isAccessible()
-    ) {
+    if (Schema.sObjectType.EmailTemplate.isAccessible() && Schema.sObjectType.Attachment.isAccessible()) {
       return new List<EmailTemplate>(
         [
           SELECT
@@ -26,11 +23,7 @@ global with sharing class FlowEmailComposerCtrl {
   }
 
   @AuraEnabled(cacheable=true)
-  public static EmailMsg getTemplateDetails(
-    string templateId,
-    String whoId,
-    String whatId
-  ) {
+  public static EmailMsg getTemplateDetails(string templateId, String whoId, String whatId) {
     Messaging.SingleEmailMessage email = Messaging.renderStoredEmailTemplate(
       templateId,
       whoId,
@@ -52,23 +45,17 @@ global with sharing class FlowEmailComposerCtrl {
       fawList.add(faw);
     }
     for (ContentDocumentLink cdl : [
-      SELECT
-        ContentDocument.Id,
-        ContentDocument.title,
-        ContentDocument.fileExtension
+      SELECT ContentDocument.Id, ContentDocument.title, ContentDocument.fileExtension
       FROM contentdocumentlink
       WHERE linkedEntityId = :templateId
     ]) {
       FileAttachmentWrapper faw = new FileAttachmentWrapper();
       faw.attachId = cdl.ContentDocument.id;
       faw.isContentDocument = true;
-      faw.filename =
-        cdl.ContentDocument.title +
-        '.' +
-        cdl.contentdocument.fileextension;
+      faw.fileName = cdl.ContentDocument.title + '.' + cdl.contentdocument.fileextension;
       fawList.add(faw);
     }
-    msg.fileattachments = fawList;
+    msg.fileAttachments = fawList;
 
     if (String.isblank(msg.body)) {
       msg.body = email.getPlainTextBody();
@@ -82,11 +69,7 @@ global with sharing class FlowEmailComposerCtrl {
   @AuraEnabled
   public static void deleteFiles(string sdocumentId) {
     if (Schema.sObjectType.ContentDocument.isDeletable()) {
-      delete [
-        SELECT Id, Title, FileType
-        FROM ContentDocument
-        WHERE id = :sdocumentId
-      ];
+      delete [SELECT Id, Title, FileType FROM ContentDocument WHERE id = :sdocumentId];
     }
   }
 
@@ -106,18 +89,11 @@ global with sharing class FlowEmailComposerCtrl {
     Boolean createActivity
   ) {
     try {
-      if (
-        String.isNotblank(toAddressesStr) &&
-        Schema.sObjectType.ContentVersion.isAccessible()
-      ) {
+      if (String.isNotblank(toAddressesStr) && Schema.sObjectType.ContentVersion.isAccessible()) {
         String[] toAddresses = toAddressesStr.split(',');
         String[] fileIds = new List<String>{};
-        String[] ccAddresses = String.isNotBlank(ccAddressesStr)
-          ? ccAddressesStr.split(',')
-          : new List<String>{};
-        String[] bccAddresses = String.isNotBlank(bccAddressesStr)
-          ? bccAddressesStr.split(',')
-          : new List<String>{};
+        String[] ccAddresses = String.isNotBlank(ccAddressesStr) ? ccAddressesStr.split(',') : new List<String>{};
+        String[] bccAddresses = String.isNotBlank(bccAddressesStr) ? bccAddressesStr.split(',') : new List<String>{};
         system.debug('contentDocumentIds****' + contentDocumentIds);
         List<String> cvIds = new List<String>{};
         for (ContentVersion cv : [
@@ -160,29 +136,14 @@ global with sharing class FlowEmailComposerCtrl {
         //email.setTargetObjectId(userinfo.getUserId());
         email.saveAsActivity = true;
 
-        List<Messaging.SendEmailResult> ser = Messaging.sendEmail(
-          new List<Messaging.SingleEmailMessage>{ email }
-        );
-        if (
-          (ser != null && ser.size() > 0 && ser[0].isSuccess()) ||
-          Test.isRunningTest()
-        ) {
+        List<Messaging.SendEmailResult> ser = Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
+        if ((ser != null && ser.size() > 0 && ser[0].isSuccess()) || Test.isRunningTest()) {
           if (createActivity) {
-            String fromAddrlog = String.isNotBlank(fromAddress)
-              ? 'From: ' + fromAddress + '\n'
-              : '';
-            String toAddrlog = String.isNotBlank(toAddressesStr)
-              ? 'To: ' + toAddressesStr + '\n'
-              : '';
-            String ccAddrlog = String.isNotBlank(ccAddressesStr)
-              ? 'Cc: ' + ccAddressesStr + '\n'
-              : '';
-            String bccAddrlog = String.isNotBlank(bccAddressesStr)
-              ? 'BCc: ' + bccAddressesStr + '\n'
-              : '';
-            String addressSeparator =
-              '==================================================================' +
-              '\n';
+            String fromAddrlog = String.isNotBlank(fromAddress) ? 'From: ' + fromAddress + '\n' : '';
+            String toAddrlog = String.isNotBlank(toAddressesStr) ? 'To: ' + toAddressesStr + '\n' : '';
+            String ccAddrlog = String.isNotBlank(ccAddressesStr) ? 'Cc: ' + ccAddressesStr + '\n' : '';
+            String bccAddrlog = String.isNotBlank(bccAddressesStr) ? 'BCc: ' + bccAddressesStr + '\n' : '';
+            String addressSeparator = '==================================================================' + '\n';
             Task emailActivity = new Task(
               Subject = subject,
               WhoId = String.isNotBlank(whoId) ? whoId : null,

@@ -1,0 +1,16 @@
+<aura:component implements="lightning:availableForFlowScreens">
+  <aura:attribute name="documentId" type="String" />
+  <aura:attribute name="isOpen" type="Boolean" default="false" />
+  <aura:if isTrue="{!v.isOpen}">
+    <section onclick="{!c.closeModal}" role="dialog" aria-modal="true" class="slds-modal slds-fade-in-open">
+      <div class="slds-modal__container">
+        <div class="slds-modal__content slds-p-around_medium slds-text-align_center" style="background: transparent">
+          <div style="width: 50%; margin: 0 auto; text-align: left">
+            <lightning:fileCard fileId="{!v.documentId}" />
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </aura:if>
+</aura:component>

@@ -2,8 +2,8 @@ import { LightningElement, api, wire } from "lwc";
 import { FlowAttributeChangeEvent, FlowNavigationNextEvent } from "lightning/flowSupport";
 import getEmailTemplates from "@salesforce/apex/FlowEmailComposerCtrl.getEmailTemplates";
 import getTemplateDetails from "@salesforce/apex/FlowEmailComposerCtrl.getTemplateDetails";
+import deleteFile from "@salesforce/apex/FlowEmailComposerCtrl.deleteFiles";
 import sendAnEmailMsg from "@salesforce/apex/FlowEmailComposerCtrl.sendAnEmailMsg";
-import TickerSymbol from "@salesforce/schema/Account.TickerSymbol";
 
 export default class FlowEmailComposer extends LightningElement {
   @api availableActions = [];
@@ -13,10 +13,10 @@ export default class FlowEmailComposer extends LightningElement {
   uploadRefId = null;
   @api emailBody = "";
   selTemplateId = null;
-  selectedDocumentId = null;
-  hasModalOpen = false;
+  @api selectedDocumentId = null;
+  @api hasModalOpen = false;
   showSpinner = false;
-  selFolderId = null;
+  @api selFolderId;
   filteredTemplateList = [{ label: "--Select a Template--", value: "select" }];
   @api subject = "";
   folders = [{ label: "--Select an E-mail Template Folder--", value: "select" }];
@@ -92,6 +92,29 @@ export default class FlowEmailComposer extends LightningElement {
     this._updateFlowAttr("bccAddresses", this.bccAddresses);
   }
 
+  handleTemplateFolderChange(event) {
+    this.selFolderId = event.target.value;
+    this.filterEmailTemplates();
+  }
+
+  handleRemoveAttachment(event) {
+    const attachId = event.target.name;
+    this.attachmentsFromTemplate = this.attachmentsFromTemplate.filter((f) => f.attachId !== attachId);
+  }
+
+  handleDeleteFile(event) {
+    const fileId = event.target.name;
+    this.filesTobeAttached = this.filesTobeAttached.filter((file) => file.documentId !== fileId);
+    this.deleteFile(fileId);
+  }
+
+  uploadFinished(event) {
+    const files = event.detail.files;
+    if (this.filesTobeAttached && this.filesTobeAttached.length > 0)
+      this.filesTobeAttached = this.filesTobeAttached.concat(files);
+    else this.filesTobeAttached = files;
+  }
+
   updateTemplateId(event) {
     this.emailTemplateId = event.target.value;
     this._updateFlowAttr("emailTemplateId", this.emailTemplateId);
@@ -107,16 +130,19 @@ export default class FlowEmailComposer extends LightningElement {
         label: d.Folder ? d.Folder.Name : "No Name",
         value: d.FolderId
       }));
+      this.filterEmailTemplates();
     }
   }
 
-  filterEmailTemplates(event) {
-    this.selFolderId = event.target.value;
+  filterEmailTemplates() {
     const defaultVal = { label: "--Select a Template--", value: null };
-    const filteredVals = this.emailTemplates
-      .filter((e) => e.FolderId === this.selFolderId)
-      .map((t) => ({ label: t.Name, value: t.Id }));
-    this.filteredTemplateList = [defaultVal, ...filteredVals];
+    this.filteredTemplateList = [defaultVal];
+    if (this.selFolderId) {
+      const filteredVals = this.emailTemplates
+        .filter((e) => e.FolderId === this.selFolderId)
+        .map((t) => ({ label: t.Name, value: t.Id }));
+      this.filteredTemplateList.push(...filteredVals);
+    }
   }
 
   changeBody(event) {
@@ -131,6 +157,7 @@ export default class FlowEmailComposer extends LightningElement {
       .then((result) => {
         this.emailBody = result.body;
         this.subject = result.subject;
+        this.attachmentsFromTemplate = result.fileAttachments;
       })
       .catch((err) => {
         console.error(err);
@@ -138,6 +165,19 @@ export default class FlowEmailComposer extends LightningElement {
       .finally(() => {
         this.showSpinner = false;
       });
+  }
+
+  previewFile(event) {
+    this.selectedDocumentId = event.target.name;
+    this.hasModalOpen = true;
+    this._updateFlowAttr("selectedDocumentId", this.selectedDocumentId);
+    this._updateFlowAttr("hasModalOpen", this.hasModalOpen);
+  }
+
+  closeModal() {
+    this.hasModalOpen = false;
+    this.selectedDocumentId = null;
+    this._updateFlowAttr("hasModalOpen", this.hasModalOpen);
   }
 
   _getSendParams() {
@@ -180,6 +220,15 @@ export default class FlowEmailComposer extends LightningElement {
       }
       const navigateNextEvent = new FlowNavigationNextEvent();
       this.dispatchEvent(navigateNextEvent);
+    }
+  }
+
+  async deleteFile(docId) {
+    try {
+      let result = await deleteFile({ sdocumentId: docId });
+      console.log("file deleted");
+    } catch (err) {
+      console.error("could not delete file", err);
     }
   }
 }

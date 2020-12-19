@@ -59,7 +59,7 @@
             name="template"
             label="Select Email Template Folder:"
             value={selFolderId}
-            onchange={filterEmailTemplates}
+            onchange={handleTemplateFolderChange}
           >
           </lightning-combobox>
         </lightning-layout-item>
@@ -92,7 +92,8 @@
               class="pillcss"
               name={att.attachId}
               label={att.fileName}
-              onremove={att.removeAtt}
+              onclick={previewFile}
+              onremove={handleRemoveAttachment}
             ></lightning-pill>
           </template>
         </lightning-layout-item>
@@ -113,8 +114,8 @@
             class="pillcss"
             name={f.documentId}
             label={f.name}
-            onremove={delFiles}
             onclick={previewFile}
+            onremove={handleDeleteFile}
           ></lightning-pill>
         </template>
         <template if:true={showSpinner}>
@@ -140,24 +141,4 @@
       </lightning-layout-item>
     </lightning-layout>
   </div>
-
-  <!-- File Preview -->
-  <!--
-    <template if:true={hasModalOpen}>
-        <section onclick={closeModal}
-                 role="dialog"
-                 aria-modal="true"
-                 class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-                <div class="slds-modal__content slds-p-around_medium slds-text-align_center"
-                     style="background: transparent;">
-                    <div style="width: 50%; margin: 0 auto; text-align: left">
-                        <lightning:fileCard fileId="{!v.selectedDocumentId}"/>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
--->
 </template>

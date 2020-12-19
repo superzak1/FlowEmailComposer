@@ -1,0 +1,8 @@
+<design:component>
+  <design:attribute name="documentId" Label="Document Id" Description="Id of document to be previewed" />
+  <design:attribute
+    name="isOpen"
+    Label="Is Modal Open"
+    Description="Used to open/close modal"
+  />
+</design:component>

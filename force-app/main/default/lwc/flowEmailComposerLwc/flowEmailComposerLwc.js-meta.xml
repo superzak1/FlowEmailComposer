@@ -16,9 +16,12 @@
             <property name="toAddresses" type="string" label="To Addresses" />
             <property name="ccAddresses" type="string" label="CC Addresses" />
             <property name="bccAddresses" type="string" label="BCC Addresses" />
+            <property name="selFolderId" type="string" label="Selected Folder Id" />
+            <property name="selectedDocumentId" type="string" label="Selected Document For Preview" />
             <property name="emailTemplateId" type="string" label="Email Template Id" />
             <property name="logEmail" type="boolean" default="false" label="Log Email" />
             <property name="showSendButton" type="boolean" default="false" label="Show Send Button" />
+            <property name="hasModalOpen" type="boolean" default="false" label="Is Modal Open" />
             <property
         name="sendOnNext"
         type="boolean"
