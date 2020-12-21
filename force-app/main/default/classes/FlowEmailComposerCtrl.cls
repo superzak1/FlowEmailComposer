@@ -84,8 +84,8 @@ global with sharing class FlowEmailComposerCtrl {
     string whatId,
     string body,
     String senderDisplayName,
-    List<String> contentDocumentIds,
-    List<String> attachmentIds,
+    List<Id> contentDocumentIds,
+    List<Id> attachmentIds,
     Boolean createActivity
   ) {
     try {
@@ -95,6 +95,7 @@ global with sharing class FlowEmailComposerCtrl {
         String[] ccAddresses = String.isNotBlank(ccAddressesStr) ? ccAddressesStr.split(',') : new List<String>{};
         String[] bccAddresses = String.isNotBlank(bccAddressesStr) ? bccAddressesStr.split(',') : new List<String>{};
         system.debug('contentDocumentIds****' + contentDocumentIds);
+        system.debug('attachmentIds****' + attachmentIds);
         List<String> cvIds = new List<String>{};
         for (ContentVersion cv : [
           SELECT Id, Title, FileType, VersionData, isLatest, ContentDocumentId
@@ -130,6 +131,7 @@ global with sharing class FlowEmailComposerCtrl {
         if (attachmentIds != null && !(attachmentIds.isEmpty())) {
           fileIds.addAll(attachmentIds);
         }
+        System.debug('>>>> File attachment Ids ' + fileIds);
         if (!(fileIds.isEmpty())) {
           email.setEntityAttachments(fileIds);
         }

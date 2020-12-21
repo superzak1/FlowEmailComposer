@@ -4,6 +4,10 @@ import getEmailTemplates from "@salesforce/apex/FlowEmailComposerCtrl.getEmailTe
 import getTemplateDetails from "@salesforce/apex/FlowEmailComposerCtrl.getTemplateDetails";
 import deleteFile from "@salesforce/apex/FlowEmailComposerCtrl.deleteFiles";
 import sendAnEmailMsg from "@salesforce/apex/FlowEmailComposerCtrl.sendAnEmailMsg";
+import searchContacts from "@salesforce/apex/ContactSearchController.searchContacts";
+import getMostRecentlyViewedContacts from "@salesforce/apex/ContactSearchController.getMostRecentlyViewed";
+import EMAILMC from "@salesforce/messageChannel/EmailComposer__c";
+import { publish, MessageContext } from "lightning/messageService";
 
 export default class FlowEmailComposer extends LightningElement {
   @api availableActions = [];
@@ -24,6 +28,7 @@ export default class FlowEmailComposer extends LightningElement {
   recordError = "";
   @api filesTobeAttached = [];
   attachmentsFromTemplate = [];
+  defaultSearchResults = [];
 
   @api senderName = "";
   @api fromAddress = "";
@@ -37,6 +42,9 @@ export default class FlowEmailComposer extends LightningElement {
   @api logEmail = false;
   @api showSendButton = false;
   @api sendOnNext = false;
+
+  @wire(MessageContext)
+  messageContext;
 
   get showCCButton() {
     return this.showCCField && !this.ccAddresses;
@@ -65,6 +73,23 @@ export default class FlowEmailComposer extends LightningElement {
   _updateFlowAttr(attrName, value) {
     const attrEvent = new FlowAttributeChangeEvent(attrName, value);
     this.dispatchEvent(attrEvent);
+  }
+
+  @wire(getMostRecentlyViewedContacts)
+  wiredMostRecentlyViewed({ error, data }) {
+    if (!error && data) {
+      this.defaultSearchResults = data;
+      this.initDefaultContactSearchResults();
+    }
+  }
+
+  initDefaultContactSearchResults() {
+    const lookup = this.template.querySelector("c-lookup");
+    if (lookup) lookup.setDefaultResults(this.defaultSearchResults);
+  }
+
+  connectedCallback() {
+    this.initDefaultContactSearchResults();
   }
 
   handleSubjectChange(event) {
@@ -106,6 +131,20 @@ export default class FlowEmailComposer extends LightningElement {
     const fileId = event.target.name;
     this.filesTobeAttached = this.filesTobeAttached.filter((file) => file.documentId !== fileId);
     this.deleteFile(fileId);
+  }
+
+  handleWhoIdChange(event) {
+    this.whoId = event.detail[0];
+  }
+
+  async handleContactSearch(event) {
+    const lookup = event.target;
+    try {
+      let searchResults = await searchContacts(event.detail);
+      lookup.setSearchResults(searchResults);
+    } catch (err) {
+      console.error("Contact search error", err);
+    }
   }
 
   uploadFinished(event) {
@@ -170,14 +209,21 @@ export default class FlowEmailComposer extends LightningElement {
   previewFile(event) {
     this.selectedDocumentId = event.target.name;
     this.hasModalOpen = true;
+    publish(this.messageContext, EMAILMC, { message: this.selectedDocumentId });
+    /** 
     this._updateFlowAttr("selectedDocumentId", this.selectedDocumentId);
     this._updateFlowAttr("hasModalOpen", this.hasModalOpen);
+*/
   }
 
   closeModal() {
     this.hasModalOpen = false;
     this.selectedDocumentId = null;
     this._updateFlowAttr("hasModalOpen", this.hasModalOpen);
+  }
+
+  _getContentDocIds() {
+    return this.filesTobeAttached.map((f) => f.documentId).concat(this.attachmentsFromTemplate.map((f) => f.attachId));
   }
 
   _getSendParams() {
@@ -191,7 +237,7 @@ export default class FlowEmailComposer extends LightningElement {
       whatId: this.whatId,
       body: this.emailBody,
       senderDisplayName: this.senderName,
-      contentDocumentIds: [],
+      contentDocumentIds: this._getContentDocIds(),
       attachmentIds: [],
       createActivity: this.logEmail
     };

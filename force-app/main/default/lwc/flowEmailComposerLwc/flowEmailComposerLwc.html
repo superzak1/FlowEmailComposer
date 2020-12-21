@@ -5,6 +5,14 @@
   <div class="slds-box" style="background: white">
     <lightning-layout multiple-rows>
       <lightning-layout-item size="12" class="slds-p-horizontal_small">
+        <c-lookup
+          onsearch={handleContactSearch}
+          onselectionchange={handleWhoIdChange}
+          label="To: Contact"
+          placeholder="Select a contact to send the email to"
+        ></c-lookup>
+      </lightning-layout-item>
+      <lightning-layout-item size="12" class="slds-p-horizontal_small">
         <lightning-input
           value={toAddresses}
           required="true"

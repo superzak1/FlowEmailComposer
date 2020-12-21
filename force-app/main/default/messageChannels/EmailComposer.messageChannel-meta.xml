@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+	<masterLabel>EmailComposer</masterLabel>
+	<isExposed>false</isExposed>
+	<description>Used for sending messages by Flow Email Composer</description>
+
+	<lightningMessageFields>
+		<fieldName>message</fieldName>
+		<description>message To Send</description>
+	</lightningMessageFields>
+
+</LightningMessageChannel>
